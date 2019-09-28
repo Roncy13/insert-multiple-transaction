@@ -167,18 +167,43 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       });
     }
 
-    $(document).on("click", ".ti-shopping-cart-items", function(row) {
-      var id = ($(row.target).attr("product-info"));
-      
-      buyProduct(id);
-    });
+    function globalFunctions() {
+      $(document).on("click", ".ti-shopping-cart-items", function(row) {
+        var id = ($(row.target).attr("product-info"));
+        
+        buyProduct(id);
+      });
+
+      $(document).on("click", ".btn-remove", function(row) {
+        var index = ($(row.target).attr("position"));
+        
+        var items = getItemsStorage();
+
+        if (items.length > 0) {
+          items.splice(index, 1);
+
+          setItemsStorage(items);
+          Swal.close();
+          shipProduct();
+        }
+      });
+    }
+
+    function getItemsStorage() {
+      return JSON.parse(localStorage.getItem("buy-product")) || [];
+    }
+
+    function setItemsStorage(items) {
+      localStorage.setItem("buy-product", JSON.stringify(items));
+    }
 
     function buyProduct(row) {
-      var items = JSON.parse(localStorage.getItem("buy-product")) || [];
+      var items = getItemsStorage();
       var item = JSON.parse(row);
 
       items.push(item);
-      localStorage.setItem("buy-product", JSON.stringify(items));
+
+      setItemsStorage(items);
       setItemNotifs();
       
       $.toast({
@@ -190,15 +215,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     }
 
     function setItemNotifs() {
-      var items = JSON.parse(localStorage.getItem("buy-product")) || [];
+      var items = getItemsStorage();
       $("#shopping-items").html(items.length);
     }
-
-    fetchProducts();
-
-    setItemNotifs();
-
-    $("#shopping-button").click(shipProduct);
 
     function shipProduct() {
       
@@ -227,6 +246,38 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
             )
         );
 
+      var items = JSON.parse(localStorage.getItem("buy-product")) || [],
+        tbody = $("<tbody>");
+      
+      items.forEach(function(item, index) {
+        tbody.append(
+          $("<tr>")
+            .append(
+              $("<td>")
+                .html(index + 1)
+            )
+            .append(
+              $("<td>")
+                .html(item.description)
+            )
+            .append(
+              $("<td>")
+                .html(item.price)
+            )
+            .append(
+              $("<td>")
+                .append(
+                  $("<button>")
+                    .attr("class", "btn btn-danger btn-md btn-remove")
+                    .attr("position", index)
+                    .html("X")
+                )
+            )
+        );
+      });
+
+      productsTable.append(tbody);
+
       Swal.fire({
         title: '<strong>Shipping Details</strong>',
         type: 'info',
@@ -237,6 +288,14 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         width: "80%"
       });
     }
+
+    globalFunctions();
+
+    fetchProducts();
+
+    setItemNotifs();
+
+    $("#shopping-button").click(shipProduct);
   </script>
 </body>
 </html>
