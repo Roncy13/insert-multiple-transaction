@@ -83,219 +83,236 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
   <script>
     var URL  = "http://localhost/products/api/";
 
-    function fetchProducts() {
-      var productsPage = $("#products-page");
+    // Function are all in Front
 
-      $.ajax({
-        method: "GET",
-        url: URL + "products-list.php",
-        success: function(response) {
-          var data = response.data;
+      // fetch Products
+      function fetchProducts() {
+        var productsPage = $("#products-page");
 
-          data.forEach(function(row) {
-            var holder = $("<div>").attr("class", "col-lg-4 col-md-6"),
-              cardProduct = $("<div>").attr("class", "card text-center card-product"),
-              productImg = $("<div>").attr("class", "card-product__img"),
-                img = $("<img>").attr("class", "card-img"),
-                ul = $("<ul>").attr("class", "card-product__imgOverlay"),
-              cardBody = $("<div>").attr("class", "card-body");
-          
-            var 
-              liSearch = $("<li>")
-                .append(
-                  $("<button>").append(
-                    $("<i>").attr("class", "ti-search")
-                  )
+        $.ajax({
+          method: "GET",
+          url: URL + "products-list.php",
+          success: function(response) {
+            var data = response.data;
+
+            data.forEach(function(row) {
+              var holder = $("<div>").attr("class", "col-lg-4 col-md-6"),
+                cardProduct = $("<div>").attr("class", "card text-center card-product"),
+                productImg = $("<div>").attr("class", "card-product__img"),
+                  img = $("<img>").attr("class", "card-img"),
+                  ul = $("<ul>").attr("class", "card-product__imgOverlay"),
+                cardBody = $("<div>").attr("class", "card-body");
+            
+              var 
+                liSearch = $("<li>")
+                  .append(
+                    $("<button>").append(
+                      $("<i>").attr("class", "ti-search")
+                    )
+                  ),
+                liShoppingCart = $("<li>")
+                  .append(
+                    $("<button>").append(
+                      $("<i>")
+                        .attr("class", "ti-shopping-cart ti-shopping-cart-items")
+                        .attr("product-info", JSON.stringify(row))
+                    )
                 ),
-              liShoppingCart = $("<li>")
-                .append(
-                  $("<button>").append(
-                    $("<i>")
-                      .attr("class", "ti-shopping-cart ti-shopping-cart-items")
-                      .attr("product-info", JSON.stringify(row))
-                  )
-              ),
-              liHeart = $("<li>")
-                .append(
-                  $("<button>").append(
-                    $("<i>").attr("class", "ti-heart")
+                liHeart = $("<li>")
+                  .append(
+                    $("<button>").append(
+                      $("<i>").attr("class", "ti-heart")
+                    )
+                );
+
+              ul.append(liSearch);
+              ul.append(liShoppingCart);
+              ul.append(liHeart);
+                
+              // set Image
+              img.attr("src", "img/product/" + row.img);
+
+              // set Product with Img
+
+              productImg.append(img);
+              productImg.append(ul);
+              
+              cardProduct.append(productImg);
+              
+              // Set Product Details
+
+              cardBody.append(
+                $("<p>").html(row.category)
+              );
+
+              cardBody.append(
+                $("<h4>")
+                  .attr("class", "card-product__title")
+                  .append(
+                    $("<a>")
+                      .attr("href", "#")
+                      .html(row.description)
                   )
               );
 
-            ul.append(liSearch);
-            ul.append(liShoppingCart);
-            ul.append(liHeart);
-              
-            // set Image
-            img.attr("src", "img/product/" + row.img);
+              cardBody.append(
+                $("<p>")
+                  .attr("class", "card-product__price")
+                  .html("$ "+row.price)
+              );
 
-            // set Product with Img
+              holder.append(cardProduct);
+              holder.append(cardBody);
 
-            productImg.append(img);
-            productImg.append(ul);
-            
-            cardProduct.append(productImg);
-            
-            // Set Product Details
+              productsPage.append(holder);
+            });
+          }
+        });
+      }
 
-            cardBody.append(
-              $("<p>").html(row.category)
-            );
+      // global functions
+      function globalFunctions() {
+        // One who triggers buy item
+        $(document).on("click", ".ti-shopping-cart-items", function(row) {
+          var id = ($(row.target).attr("product-info"));
+          
+          buyProduct(id);
+        });
 
-            cardBody.append(
-              $("<h4>")
-                .attr("class", "card-product__title")
-                .append(
-                  $("<a>")
-                    .attr("href", "#")
-                    .html(row.description)
-                )
-            );
+        // One who triggers remove item in shopping cart
+        $(document).on("click", ".btn-remove", function(row) {
+          var index = ($(row.target).attr("position"));
+          
+          var items = getItemsStorage();
 
-            cardBody.append(
-              $("<p>")
-                .attr("class", "card-product__price")
-                .html("$ "+row.price)
-            );
+          if (items.length > 0) {
+            items.splice(index, 1);
 
-            holder.append(cardProduct);
-            holder.append(cardBody);
+            setItemsStorage(items);
+            Swal.close();
+            purchaseProducts();
+          }
+        });
+      }
 
-            productsPage.append(holder);
-          });
-        }
-      });
-    }
+      // Gets the items in the storage
+      function getItemsStorage() {
+        return JSON.parse(localStorage.getItem("buy-product")) || [];
+      }
 
-    function globalFunctions() {
-      $(document).on("click", ".ti-shopping-cart-items", function(row) {
-        var id = ($(row.target).attr("product-info"));
-        
-        buyProduct(id);
-      });
+      // Sets the items in localStorage
+      function setItemsStorage(items) {
+        localStorage.setItem("buy-product", JSON.stringify(items));
+      }
 
-      $(document).on("click", ".btn-remove", function(row) {
-        var index = ($(row.target).attr("position"));
-        
+      // function that buys product
+      function buyProduct(row) {
         var items = getItemsStorage();
+        var item = JSON.parse(row);
 
-        if (items.length > 0) {
-          items.splice(index, 1);
+        items.push(item);
 
-          setItemsStorage(items);
-          Swal.close();
-          shipProduct();
-        }
-      });
-    }
+        setItemsStorage(items);
+        setItemNotifs();
+        
+        $.toast({
+            text: item.description + ' has been purchased successfully',
+            icon: 'success',
+            loader: false,
+            position: 'top-right'
+        });
+      }
 
-    function getItemsStorage() {
-      return JSON.parse(localStorage.getItem("buy-product")) || [];
-    }
+      // Set items Number on top of the page
+      function setItemNotifs() {
+        var items = getItemsStorage();
+        $("#shopping-items").html(items.length);
+      }
 
-    function setItemsStorage(items) {
-      localStorage.setItem("buy-product", JSON.stringify(items));
-    }
+      // Modal that shows products to purchase
+      function purchaseProducts() {
+        
+        var productsTable = $("<table>")
+          .attr("class", "table")
+          .append(
+            $("<thead>")
+              .append(
+                $("<tr>")
+                  .append(
+                    $("<th>").attr("scope", "col")
+                      .html("#")
+                  )
+                  .append(
+                    $("<th>").attr("scope", "col")
+                      .html("Description")
+                  )
+                  .append(
+                    $("<th>").attr("scope", "col")
+                      .html("Price")
+                  )
+                  .append(
+                    $("<th>").attr("scope", "col")
+                      .html("Delete")
+                  )
+              )
+          );
 
-    function buyProduct(row) {
-      var items = getItemsStorage();
-      var item = JSON.parse(row);
+        var items = JSON.parse(localStorage.getItem("buy-product")) || [],
+          tbody = $("<tbody>");
+        
+        items.forEach(function(item, index) {
+          tbody.append(
+            $("<tr>")
+              .append(
+                $("<td>")
+                  .html(index + 1)
+              )
+              .append(
+                $("<td>")
+                  .html(item.description)
+              )
+              .append(
+                $("<td>")
+                  .html(item.price)
+              )
+              .append(
+                $("<td>")
+                  .append(
+                    $("<button>")
+                      .attr("class", "btn btn-danger btn-md btn-remove")
+                      .attr("position", index)
+                      .html("X")
+                  )
+              )
+          );
+        });
 
-      items.push(item);
+        productsTable.append(tbody);
 
-      setItemsStorage(items);
+        Swal.fire({
+          title: '<strong>Shipping Details</strong>',
+          type: 'info',
+          html: productsTable.prop('outerHTML'),
+          showCloseButton: true,
+          showCancelButton: true,
+          focusConfirm: true,
+          width: "80%"
+        });
+      }
+
+      globalFunctions();
+
+      fetchProducts();
+
       setItemNotifs();
-      
-      $.toast({
-          text: item.description + ' has been purchased successfully',
-          icon: 'success',
-          loader: false,
-          position: 'top-right'
-      });
-    }
 
-    function setItemNotifs() {
-      var items = getItemsStorage();
-      $("#shopping-items").html(items.length);
-    }
+      $("#shopping-button").click(purchaseProducts);
 
-    function shipProduct() {
-      
-      var productsTable = $("<table>")
-        .attr("class", "table")
-        .append(
-          $("<thead>")
-            .append(
-              $("<tr>")
-                .append(
-                  $("<th>").attr("scope", "col")
-                    .html("#")
-                )
-                .append(
-                  $("<th>").attr("scope", "col")
-                    .html("Description")
-                )
-                .append(
-                  $("<th>").attr("scope", "col")
-                    .html("Price")
-                )
-                .append(
-                  $("<th>").attr("scope", "col")
-                    .html("Delete")
-                )
-            )
-        );
+    // End Function that are all in Front
 
-      var items = JSON.parse(localStorage.getItem("buy-product")) || [],
-        tbody = $("<tbody>");
-      
-      items.forEach(function(item, index) {
-        tbody.append(
-          $("<tr>")
-            .append(
-              $("<td>")
-                .html(index + 1)
-            )
-            .append(
-              $("<td>")
-                .html(item.description)
-            )
-            .append(
-              $("<td>")
-                .html(item.price)
-            )
-            .append(
-              $("<td>")
-                .append(
-                  $("<button>")
-                    .attr("class", "btn btn-danger btn-md btn-remove")
-                    .attr("position", index)
-                    .html("X")
-                )
-            )
-        );
-      });
+    // Purchase items and connect to backend
 
-      productsTable.append(tbody);
-
-      Swal.fire({
-        title: '<strong>Shipping Details</strong>',
-        type: 'info',
-        html: productsTable.prop('outerHTML'),
-        showCloseButton: true,
-        showCancelButton: true,
-        focusConfirm: true,
-        width: "80%"
-      });
-    }
-
-    globalFunctions();
-
-    fetchProducts();
-
-    setItemNotifs();
-
-    $("#shopping-button").click(shipProduct);
+    
   </script>
 </body>
 </html>
