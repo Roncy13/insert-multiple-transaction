@@ -317,16 +317,42 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
           showCancelButton: true,
           focusConfirm: true,
           width: "80%"
+        }).then(function(row) {
+          var customerName = $("#customer-name").val();
+
+          if (row.value) {
+            if (customerName.length === 0) {
+              $.toast({
+                  text: "Customer Name is required",
+                  icon: 'error',
+                  loader: false,
+                  position: 'top-right'
+              });
+
+              purchaseProducts();
+            } else {
+              var details = getItemsStorage(),
+                items = { customerName : customerName };
+            
+              itemPurchase(details, items);
+            }
+          }
         });
       }
+
+      // remove-all-item in shopping-cart
 
       function removeItems() {
         localStorage.removeItem("buy-product");
       }
+
+      // run global function at load of page
       globalFunctions();
 
+      // get product list at load of page
       fetchProducts();
 
+      // set item purchase count at load of page
       setItemNotifs();
 
       $("#shopping-button").click(purchaseProducts);
@@ -336,7 +362,11 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     // Purchase items and connect to backend
 
       function itemPurchase(header, items) {
-        $.post({
+
+        console.log(header);
+
+        console.log(items);
+        /*$.post({
           url: URL + "purchase-product.php",
           action: "POST",
           data: {
@@ -346,7 +376,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
           success: function(response) {
             console.log(response);
           }
-        })
+        })*/
       }
   </script>
 </body>
