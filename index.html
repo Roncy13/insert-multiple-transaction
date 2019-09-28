@@ -175,20 +175,18 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
     function buyProduct(row) {
       var items = JSON.parse(localStorage.getItem("buy-product")) || [];
+      var item = JSON.parse(row);
 
-      if (row) {
-        items.push(JSON.parse(row));
-      }
-
+      items.push(item);
       localStorage.setItem("buy-product", JSON.stringify(items));
-
       setItemNotifs();
+      
       $.toast({
-          text: JSON.parse(row).description + ' has been purchased successfully',
+          text: item.description + ' has been purchased successfully',
           icon: 'success',
           loader: false,
           position: 'top-right'
-      })
+      });
     }
 
     function setItemNotifs() {
@@ -203,13 +201,36 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     $("#shopping-button").click(shipProduct);
 
     function shipProduct() {
+      
+      var productsTable = $("<table>")
+        .attr("class", "table")
+        .append(
+          $("<thead>")
+            .append(
+              $("<tr>")
+                .append(
+                  $("<th>").attr("scope", "col")
+                    .html("#")
+                )
+                .append(
+                  $("<th>").attr("scope", "col")
+                    .html("Description")
+                )
+                .append(
+                  $("<th>").attr("scope", "col")
+                    .html("Price")
+                )
+                .append(
+                  $("<th>").attr("scope", "col")
+                    .html("Delete")
+                )
+            )
+        );
+
       Swal.fire({
         title: '<strong>Shipping Details</strong>',
         type: 'info',
-        html:
-          'You can use <b>bold text</b>, ' +
-          '<a href="//sweetalert2.github.io">links</a> ' +
-          'and other HTML tags',
+        html: productsTable.prop('outerHTML'),
         showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,
