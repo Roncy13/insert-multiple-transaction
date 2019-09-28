@@ -48,23 +48,39 @@ function insertDetails($details, $id) {
 
   $conn = getConnection();
   $query = 'INSERT INTO details (`description`, `price`, `img`, `category`, `header_id`) VALUES ';
+  $query_fields = array();
   $values = array();
 
-  foreach ($details as $value) {
+  foreach ($details as $key => $value) {
     // i Just append it manually, so that the $query will be dynamic and will depend on the number of items
-    
-    $query .= "(?,?,?,?,?), ";
-   
+    $fields = array(
+      ":{$key}_description",
+      ":{$key}_price",
+      ":{$key}_img",
+      ":{$key}_category",
+      ":{$key}_header_id"
+    );
+
+    $join_fields = implode(", ", $fields);
+    $query_fields[]= "({$join_fields})";
+
     //   ------------This how we access items in details pass in front end-------   --- HEDAER ID come from Header insert----
     //          Description   Price             Img             Category            Header ID
-    $detail = array($value["description"], $value["price"], $value["img"], $value["category"], $id);
-    $values = array_merge($values, $details);
+    $values[] = array($value["description"], $value["price"], $value["img"], $value["category"], $id);
   }
 
-  $stmt = $conn->prepare($query);
-  $conn->beginTransaction();
-  $stmt->execute($values);
-  $conn->commit();
+  $appendFields = implode(', ', $query_fields);
+  $stmt = $conn->prepare("{$query} {$appendFields}");
+  
+  foreach($values as $key => $value) {
+    $stmt->bindValue(":{$key}_description", $value[0]);
+    $stmt->bindValue(":{$key}_price", $value[1]);
+    $stmt->bindValue(":{$key}_img", $value[2]);
+    $stmt->bindValue(":{$key}_category", $value[3]);
+    $stmt->bindValue(":{$key}_header_id", $value[4]);
+  }
+
+  $stmt->execute();
 
   return retrieveDetailsByHeader($id);
 }
