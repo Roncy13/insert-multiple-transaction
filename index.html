@@ -318,7 +318,8 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
           focusConfirm: true,
           width: "80%"
         }).then(function(row) {
-          var customerName = $("#customer-name").val();
+          var customerName = $("#customer-name").val(),
+            details = getItemsStorage();
 
           if (row.value) {
             if (customerName.length === 0) {
@@ -330,9 +331,15 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
               });
 
               purchaseProducts();
+            } else if (details.length === 0) {
+              $.toast({
+                  text: "You have empty Shopping Cart",
+                  icon: 'error',
+                  loader: false,
+                  position: 'top-right'
+              });
             } else {
-              var details = getItemsStorage(),
-                header = { customer_name : customerName };
+                var header = { customer_name : customerName };
             
               itemPurchase(header, details);
             }
