@@ -170,21 +170,26 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       buyProduct(id);
     });
 
-    function buyProduct(id) {
+    function buyProduct(id = null) {
       var items = JSON.parse(localStorage.getItem("buy-product")) || [];
 
-      console.log(items);
+      if (id !== null) {
+        items.push(parseInt(id));
+      }
 
-      items.push(parseInt(id));
-
-      var itemCount = items.length;
       localStorage.setItem("buy-product", JSON.stringify(items));
-      $("#shopping-items").html(itemCount);
+
+      setItemNotifs();
+    }
+
+    function setItemNotifs() {
+      var items = JSON.parse(localStorage.getItem("buy-product")) || [];
+      $("#shopping-items").html(items.length);
     }
 
     fetchProducts();
     
-    localStorage.removeItem("buy-product");
+    setItemNotifs();
   </script>
 </body>
 </html>
