@@ -111,7 +111,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
                 .append(
                   $("<button>").append(
                     $("<i>")
-                      .attr("class", "ti-shopping-cart")
+                      .attr("class", "ti-shopping-cart ti-shopping-cart-items")
                       .attr("product-info", JSON.stringify(row))
                   )
               ),
@@ -167,7 +167,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       });
     }
 
-    $(document).on("click", ".ti-shopping-cart", function(row) {
+    $(document).on("click", ".ti-shopping-cart-items", function(row) {
       var id = ($(row.target).attr("product-info"));
       
       buyProduct(id);
@@ -233,13 +233,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         html: productsTable.prop('outerHTML'),
         showCloseButton: true,
         showCancelButton: true,
-        focusConfirm: false,
-        confirmButtonText:
-          '<i class="fa fa-thumbs-up"></i> Great!',
-        confirmButtonAriaLabel: 'Thumbs up, great!',
-        cancelButtonText:
-          '<i class="fa fa-thumbs-down"></i>',
-        cancelButtonAriaLabel: 'Thumbs down',
+        focusConfirm: true,
         width: "80%"
       });
     }
