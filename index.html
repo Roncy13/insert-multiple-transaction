@@ -332,9 +332,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
               purchaseProducts();
             } else {
               var details = getItemsStorage(),
-                items = { customerName : customerName };
+                header = { customer_name : customerName };
             
-              itemPurchase(details, items);
+              itemPurchase(header, details);
             }
           }
         });
@@ -344,6 +344,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
       function removeItems() {
         localStorage.removeItem("buy-product");
+        setItemNotifs();
       }
 
       // run global function at load of page
