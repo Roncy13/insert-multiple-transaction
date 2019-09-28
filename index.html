@@ -289,10 +289,30 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
         productsTable.append(tbody);
 
+        var purchaseDetails = $("<div>")
+          .attr("class", "row")
+          .append(
+            $("<div>")
+              .attr("class", "col-lg-12 col-md-12")
+              .append(
+                $("<input>")
+                  .attr("class", "form-control mb-2")
+                  .attr("id", "customer-name")
+                  .attr("placeholder", "Add Your Name")
+                  .val("James Roncesvalles")
+              )
+          )
+          .append(
+            $("<div>")
+              .attr("class", "col-lg-12 col-md-12")
+              .append(productsTable)
+          )
+          
         Swal.fire({
           title: '<strong>Shipping Details</strong>',
           type: 'info',
-          html: productsTable.prop('outerHTML'),
+          html:  
+            purchaseDetails.prop('outerHTML'),
           showCloseButton: true,
           showCancelButton: true,
           focusConfirm: true,
@@ -300,6 +320,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
         });
       }
 
+      function removeItems() {
+        localStorage.removeItem("buy-product");
+      }
       globalFunctions();
 
       fetchProducts();
@@ -312,7 +335,19 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
     // Purchase items and connect to backend
 
-    
+      function itemPurchase(header, items) {
+        $.post({
+          url: URL + "purchase-product.php",
+          action: "POST",
+          data: {
+            header: header,
+            details: items
+          },
+          success: function(response) {
+            console.log(response);
+          }
+        })
+      }
   </script>
 </body>
 </html>
