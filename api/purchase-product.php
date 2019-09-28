@@ -5,7 +5,7 @@ require_once("./utilities/response.php");
 $sqlConn = getConnection();
 
 function purchaseItem($orderDetails) {
-  /*
+  
   try {
     $conn = getConnection(); 
     $stmt = $conn->prepare("SELECT * FROM products");
@@ -16,11 +16,11 @@ function purchaseItem($orderDetails) {
   } catch(Exception $err) {
     serverError($err->getMessage());
   }
-  */
+  
   response($orderDetails, "Items has been purchased successfully");
 }
 
-if ($_POST) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   purchaseItem($_POST);
 } else {
   validationError(array(), "Purchase Product can only be used by VERB POST");

@@ -362,11 +362,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     // Purchase items and connect to backend
 
       function itemPurchase(header, items) {
-
-        console.log(header);
-
-        console.log(items);
-        /*$.post({
+        $.post({
           url: URL + "purchase-product.php",
           action: "POST",
           data: {
@@ -374,9 +370,20 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
             details: items
           },
           success: function(response) {
+            $.toast({
+              text: "Item Purchased Successfully",
+              icon: 'success',
+              loader: false,
+              position: 'top-right'
+            });
+
+            removeItems();
+            console.log(response);
+          },
+          error: function(response) {
             console.log(response);
           }
-        })*/
+        });
       }
   </script>
 </body>
