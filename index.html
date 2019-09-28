@@ -18,10 +18,27 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+  	<header class="header_area">
+        <div class="main_menu">
+          <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+              <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                <ul class="nav-shop pull-right mt-3 w-100 text-right">
+                  <li class="nav-item"><button><i class="ti-shopping-cart"></i><span class="nav-shop__circle">3</span></button> </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </header>
 	<!-- ================ category section start ================= -->		  
   <section class="section-margin--small mb-5">
     <div class="container">
+      <div class = "row mb-2">
+        <ul class="card-product__imgOverlay">
+          <li><button><i class="ti-shopping-cart"></i></button></li>
+        </ul>
+      </div>
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12">
           <section class="lattest-product-area pb-40 category-list">
@@ -485,7 +502,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
               liShoppingCart = $("<li>")
                 .append(
                   $("<button>").append(
-                    $("<i>").attr("class", "ti-search")
+                    $("<i>").attr("class", "ti-shopping-cart")
                   )
               ),
               liHeart = $("<li>")
